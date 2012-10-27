@@ -31,11 +31,15 @@
                                 <td class="start-date"><%= format_time(time_tracker[:started_on]) %></td>
                                 <td class="spent-time"><%= time_tracker.time_spent_to_s %></td>
                                 <td class="buttons">
-                                    <%= link_to_remote l(:time_tracker_label_delete),
-                                        :url => { :controller => '/time_trackers', :action => 'delete', :id => time_tracker.id },
-                                        :html => { :class => 'icon icon-del' },
-                                        :complete => "$('#{'user-timetracker' + time_tracker.id.to_s}').update('<td colspan=\"0\" class=\"msg\">' + request.responseText + '</td>');"
+                                    <%= link_to l(:time_tracker_label_delete),
+                                        { :controller => '/time_trackers', :action => 'delete', :id => time_tracker.id },
+                                        { :id => "delete-user-tt#{time_tracker.id}", :class => 'icon icon-del', :remote => true }
                                     %>
+                                    <%= javascript_tag do -%>
+                                      $("#delete-user-tt<%= time_tracker.id %>").bind("ajax:complete", function(et, e){
+                                        updateElementIfChanged("#user-timetracker<%= time_tracker.id %>", '<td colspan="5" class="msg">' + e.responseText + '</td>', "#delete-user-tt<%= time_tracker.id %>");
+                                      });
+                                    <% end -%>
                                 </td>
                             </tr>
                         <% end %>
@@ -80,11 +84,15 @@
                                 <td class="spent-time"><%= time_tracker.time_spent_to_s %></td>
                                 <td class="buttons">
                                     <% if User.current.allowed_to?(:delete_others_time_trackers, nil, :global => true) %>
-                                        <%= link_to_remote l(:time_tracker_label_delete),
-                                            :url => { :controller => '/time_trackers', :action => 'delete', :id => time_tracker.id },
-                                            :html => { :class => 'icon icon-del' },
-                                            :complete => "$('#{'all-timetracker' + time_tracker.id.to_s}').update('<td colspan=\"0\" class=\"msg\">' + request.responseText + '</td>');"
+                                        <%= link_to l(:time_tracker_label_delete),
+                                            { :controller => '/time_trackers', :action => 'delete', :id => time_tracker.id },
+                                            { :id => "delete-all-tt#{time_tracker.id}", :class => 'icon icon-del', :remote => true }
                                         %>
+                                        <%= javascript_tag do -%>
+                                          $("#delete-all-tt<%= time_tracker.id %>").bind("ajax:complete", function(et, e){
+                                            updateElementIfChanged("#all-timetracker<%= time_tracker.id %>", '<td colspan="5" class="msg">' + e.responseText + '</td>', "#delete-all-tt<%= time_tracker.id %>");
+                                          });
+                                        <% end -%>
                                     <% end %>
                                 </td>
                             </tr>
